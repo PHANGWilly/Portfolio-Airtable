@@ -1,52 +1,55 @@
 "use client";
 
-// import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-// import { z } from "zod";
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [motDePasse, setMotDePasse] = useState("");
 
-// const formSchema = z.object({
-//   username: z.string().min(2, {
-//     message: "Username must be at least 2 characters.",
-//   }),
-// });
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
 
-export default function Login() {
-  const form = useForm({
-    defaultValues: {
-      username: "",
-    },
-  });
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, motDePasse }),
+    });
 
-  const onSubmit = (data: { username: string }) => {
-    console.log(data);
+    const data = await res.json();
+    if (!res.ok) {
+      alert("Erreur login: " + data.error);
+      return;
+    }
+
+    localStorage.setItem("token", data.token);
+
+    alert("Connexion réussie !");
+    router.push("/dashboard");
   };
 
   return (
-    <div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="shadcn" {...field} />
-                </FormControl>
-                <FormDescription>This is your public display name.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+    <div className="max-w-md mx-auto mt-10">
+      <h1 className="text-2xl font-bold mb-6">Connexion</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label>Email</label>
+          <input className="border p-2 w-full" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
+        <div>
+          <label>Mot de passe</label>
+          <input
+            className="border p-2 w-full"
+            type="password"
+            value={motDePasse}
+            onChange={(e) => setMotDePasse(e.target.value)}
           />
-          <Button type="submit">Submit</Button>
-        </form>
-      </Form>
-      ;
+        </div>
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+          Se connecter
+        </button>
+      </form>
     </div>
   );
 }
