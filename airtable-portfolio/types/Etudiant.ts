@@ -5,6 +5,6 @@ export type Etudiant = {
     Prénom: string;
     Email: string;
     Classe: string;
-    Projet: string[];
+    Project: string[];
   };
 };
