@@ -1,11 +1,18 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import Modal from "@/components/ui/project-modal"; 
-import { Projet } from "@/types/Projet";
+import { useState } from "react"
+import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { motion } from "framer-motion"
+import Image from "next/image"
+import { Projet } from "@/types/Projet"
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 const techIconMap: Record<string, string> = {
   "Next.js": "/next.svg",
@@ -13,7 +20,7 @@ const techIconMap: Record<string, string> = {
   "Prisma": "/prisma-icon.svg",
   "GraphQL": "/graphql.svg",
   "PHP": "/php-logo.svg",
-};
+}
 
 const projects: Projet[] = [
   {
@@ -58,10 +65,10 @@ const projects: Projet[] = [
       Annee: 2024,
     },
   },
-];
+]
 
 export default function ProjectPage() {
-  const [selectedProject, setSelectedProject] = useState<Projet | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Projet | null>(null)
 
   return (
     <div className="p-6">
@@ -108,8 +115,38 @@ export default function ProjectPage() {
       </div>
 
       {selectedProject && (
-        <Modal project={selectedProject} onClose={() => setSelectedProject(null)} />
+        <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+          <DialogContent className="backdrop-blur-sm bg-white/80 border-none max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{selectedProject.fields.Nom}</DialogTitle>
+              <DialogDescription>
+                Projet réalisé en <strong>{selectedProject.fields.Annee}</strong>, semestre{" "}
+                {selectedProject.fields.Semestre}
+              </DialogDescription>
+            </DialogHeader>
+
+            <p className="text-sm text-muted-foreground mt-2">
+              {selectedProject.fields.Description}
+            </p>
+
+            <div className="mt-4">
+              <p className="font-semibold mb-2">Technologies utilisées</p>
+              <div className="flex space-x-4">
+                {selectedProject.fields.Matière?.map((tech, i) => (
+                  <Image
+                    key={i}
+                    src={techIconMap[tech] || "/file.svg"}
+                    alt={tech}
+                    width={36}
+                    height={36}
+                    title={tech}
+                  />
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
-  );
+  )
 }
