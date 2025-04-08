@@ -26,7 +26,7 @@ export default function LoginPage() {
     localStorage.setItem("token", data.token);
 
     alert("Connexion réussie !");
-    router.push("/dashboard");
+    router.push("/admin/dashboard");
   };
 
   return (

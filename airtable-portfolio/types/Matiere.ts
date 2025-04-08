@@ -6,6 +6,6 @@ export type Matiere = {
     Année: string;
     Cycle: string;
     Semestre: string;
-    Projet: string[];
+    Project: string[];
   };
 };

@@ -5,7 +5,7 @@ import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Modal from "@/components/ui/project-modal"; 
-import { Projet } from "@/types/Projet";
+import { Project } from "@/types/Project";
 
 const techIconMap: Record<string, string> = {
   "Next.js": "/next.svg",
@@ -15,53 +15,47 @@ const techIconMap: Record<string, string> = {
   "PHP": "/php-logo.svg",
 };
 
-const projects: Projet[] = [
+const projects: Project[] = [
   {
     id: "1",
     fields: {
-      Nom: "Game Tracker",
-      Description: "App Next.js avec Tailwind, Prisma et GraphQL. Interface responsive et API typée.",
-      Lien: "https://example.com",
-      Etudiants: ["Alice", "Bob"],
-      Visibilité: true,
-      Matière: ["Next.js", "Tailwind CSS", "Prisma"],
-      Likes: [],
-      Semestre: "S1",
-      Annee: 2023,
+      name: "Game Tracker",
+      description: "App Next.js avec Tailwind, Prisma et GraphQL. Interface responsive et API typée.",
+      link: "https://example.com",
+      students: ["Alice", "Bob"],
+      visibility: "checked",
+      subjects: ["Next.js", "Tailwind CSS", "Prisma"],
+      likes: [],
     },
   },
   {
     id: "2",
     fields: {
-      Nom: "Blog CMS",
-      Description: "Système de blog avec gestion des articles via GraphQL.",
-      Lien: "https://example.com",
-      Etudiants: ["Charlie"],
-      Visibilité: true,
-      Matière: ["Next.js", "Tailwind CSS", "GraphQL"],
-      Likes: [],
-      Semestre: "S2",
-      Annee: 2022,
+      name: "Blog CMS",
+      description: "Système de blog avec gestion des articles via GraphQL.",
+      link: "https://example.com",
+      students: ["Charlie"],
+      visibility: "checked",
+      subjects: ["Next.js", "Tailwind CSS", "GraphQL"],
+      likes: [],
     },
   },
   {
     id: "3",
     fields: {
-      Nom: "E-Commerce Dashboard",
-      Description: "Dashboard admin moderne avec Next.js, Prisma et Tailwind.",
-      Lien: "https://example.com",
-      Etudiants: ["David", "Emma"],
-      Visibilité: true,
-      Matière: ["Next.js", "Tailwind CSS", "Prisma"],
-      Likes: [],
-      Semestre: "S1",
-      Annee: 2024,
+      name: "E-Commerce Dashboard",
+      description: "Dashboard admin moderne avec Next.js, Prisma et Tailwind.",
+      link: "https://example.com",
+      students: ["David", "Emma"],
+      visibility: "checked",
+      subjects: ["Next.js", "Tailwind CSS", "Prisma"],
+      likes: [],
     },
   },
 ];
 
 export default function ProjectPage() {
-  const [selectedProject, setSelectedProject] = useState<Projet | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   return (
     <div className="p-6">
@@ -82,14 +76,14 @@ export default function ProjectPage() {
           >
             <div className="p-4">
               <CardHeader>
-                <CardTitle>{project.fields.Nom}</CardTitle>
+                <CardTitle>{project.fields.name}</CardTitle>
               </CardHeader>
 
               <CardFooter className="pt-4">
                 <div className="flex flex-col items-start space-y-2 w-full">
                   <span className="text-sm font-semibold text-gray-700">Technologies utilisées</span>
                   <div className="flex space-x-4">
-                    {project.fields.Matière?.map((tech, i) => (
+                    {project.fields.subjects?.map((tech, i) => (
                       <Image
                         key={i}
                         src={techIconMap[tech] || "/file.svg"}
