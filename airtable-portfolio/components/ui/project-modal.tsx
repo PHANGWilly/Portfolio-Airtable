@@ -1,8 +1,9 @@
 "use client";
 
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { Projet } from "@/types/Projet";
+import { Button } from "./button";
 
 const techIconMap: Record<string, string> = {
   "Next.js": "/next.svg",
@@ -34,8 +35,7 @@ export default function Modal({ project, onClose }: { project: Projet; onClose: 
               <p className="text-sm text-muted-foreground">{fields.Description}</p>
             </CardDescription>
           </CardHeader>
-
-          <CardFooter className="pt-4">
+          <CardContent>
             <div className="flex flex-col items-start space-y-2 w-full">
               <span className="text-sm font-semibold text-gray-700">Technologies utilisées</span>
               <div className="flex space-x-4">
@@ -51,14 +51,16 @@ export default function Modal({ project, onClose }: { project: Projet; onClose: 
                 ))}
               </div>
             </div>
+          </CardContent>
+          <CardFooter className="pt-4">
+          <Button
+            onClick={onClose}
+            className="w-full"
+          >
+            Fermer
+          </Button>
           </CardFooter>
         </Card>
-        <button
-          onClick={onClose}
-          className="mt-4 w-full bg-gray-100 text-gray-800 py-2 rounded hover:bg-gray-200"
-        >
-          Fermer
-        </button>
       </div>
     </div>
   );
