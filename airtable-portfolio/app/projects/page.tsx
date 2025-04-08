@@ -1,11 +1,18 @@
-"use client";
+"use client"
 
 import { useState } from "react";
 import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Modal from "@/components/ui/project-modal"; 
 import { Project } from "@/types/Project";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 const techIconMap: Record<string, string> = {
   "Next.js": "/next.svg",
@@ -13,7 +20,7 @@ const techIconMap: Record<string, string> = {
   "Prisma": "/prisma-icon.svg",
   "GraphQL": "/graphql.svg",
   "PHP": "/php-logo.svg",
-};
+}
 
 const projects: Project[] = [
   {
@@ -52,7 +59,7 @@ const projects: Project[] = [
       likes: [],
     },
   },
-];
+]
 
 export default function ProjectPage() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -102,8 +109,38 @@ export default function ProjectPage() {
       </div>
 
       {selectedProject && (
-        <Modal project={selectedProject} onClose={() => setSelectedProject(null)} />
+        <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+          <DialogContent className="backdrop-blur-sm bg-white/80 border-none max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{selectedProject.fields.name}</DialogTitle>
+              <DialogDescription>
+                {/* Projet réalisé en <strong>{selectedProject.fields.}</strong>, semestre{" "}
+                {selectedProject.fields.Semestre} */}
+              </DialogDescription>
+            </DialogHeader>
+
+            <p className="text-sm text-muted-foreground mt-2">
+              {selectedProject.fields.description}
+            </p>
+
+            <div className="mt-4">
+              <p className="font-semibold mb-2">Technologies utilisées</p>
+              <div className="flex space-x-4">
+                {selectedProject.fields.subjects?.map((tech, i) => (
+                  <Image
+                    key={i}
+                    src={techIconMap[tech] || "/file.svg"}
+                    alt={tech}
+                    width={36}
+                    height={36}
+                    title={tech}
+                  />
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
-  );
+  )
 }

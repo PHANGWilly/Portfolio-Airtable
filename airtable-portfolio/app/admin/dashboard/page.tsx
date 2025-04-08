@@ -2,10 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { Project } from "@/types/Project";
-import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import Modal from "@/components/ui/project-modal";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const techIconMap: Record<string, string> = {
   "Next.js": "/next.svg",
@@ -49,66 +60,76 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project, index) => (
             <motion.div
-              key={index}
+              key={project.id}
               onClick={() => setSelectedProject(project)}
               whileHover={{ scale: 1.02, scaleY: 0.96 }}
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              className="bg-white rounded-xl shadow-md p-4 cursor-pointer hover:bg-gray-50"
+              className="w-full rounded-xl bg-white shadow-md cursor-pointer"
             >
-              <CardHeader>
-                <CardTitle className="text-xl">
-                  {project.fields.name}
-                </CardTitle>
-              </CardHeader>
+              <div className="p-4">
+                <CardHeader>
+                  <CardTitle>{project.fields.name}</CardTitle>
+                </CardHeader>
 
-              <div className="text-sm text-gray-700 mb-2">
-                {project.fields.description}
-              </div>
-
-              {project.fields.subjects && (
-                <div className="mb-2">
-                  <p className="text-xs font-semibold text-gray-500 mb-1">
-                    Technologies :
-                  </p>
-                  <div className="flex gap-2 flex-wrap">
-                  {project.fields.subjects?.map((tech, i) => (
-                    <Image
-                        key={i}
-                        src={techIconMap[tech] || "/file.svg"}
-                        alt={tech}
-                        width={36}
-                        height={36}
-                        title={tech}
-                    />
-                    ))}
+                <CardFooter className="pt-4">
+                  <div className="flex flex-col items-start space-y-2 w-full">
+                    <span className="text-sm font-semibold text-gray-700">
+                      Technologies utilisées
+                    </span>
+                    <div className="flex space-x-4">
+                      {project.fields.subjects?.map((tech, i) => (
+                        <Image
+                          key={i}
+                          src={techIconMap[tech] || "/file.svg"}
+                          alt={tech}
+                          width={36}
+                          height={36}
+                          title={tech}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-
-              {project.fields.link && (
-                <a
-                  href={project.fields.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 text-xs underline"
-                >
-                  Voir le projet
-                </a>
-              )}
-
-              <CardFooter className="mt-4 flex justify-between text-xs text-gray-500">
-                <span>👍 {project.fields.likes?.length || 0} like(s)</span>
-              </CardFooter>
+                </CardFooter>
+              </div>
             </motion.div>
           ))}
         </div>
       )}
 
       {selectedProject && (
-        <Modal
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-        />
+        <Dialog
+          open={!!selectedProject}
+          onOpenChange={() => setSelectedProject(null)}
+        >
+          <DialogContent className="backdrop-blur-sm bg-white/80 border-none max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{selectedProject.fields.name}</DialogTitle>
+              <DialogDescription>
+                {/* Tu peux ajouter semestre/année ici si besoin */}
+              </DialogDescription>
+            </DialogHeader>
+
+            <p className="text-sm text-muted-foreground mt-2">
+              {selectedProject.fields.description}
+            </p>
+
+            <div className="mt-4">
+              <p className="font-semibold mb-2">Technologies utilisées</p>
+              <div className="flex space-x-4">
+                {selectedProject.fields.subjects?.map((tech, i) => (
+                  <Image
+                    key={i}
+                    src={techIconMap[tech] || "/file.svg"}
+                    alt={tech}
+                    width={36}
+                    height={36}
+                    title={tech}
+                  />
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
