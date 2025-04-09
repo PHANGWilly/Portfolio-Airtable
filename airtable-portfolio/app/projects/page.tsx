@@ -20,49 +20,44 @@ const techIconMap: Record<string, string> = {
   "Prisma": "/prisma-icon.svg",
   "GraphQL": "/graphql.svg",
   "PHP": "/php-logo.svg",
+  "JavaScript": "/file.svg", // temporaire
 }
 
 const projects: Projet[] = [
   {
     id: "1",
     fields: {
-      Nom: "Game Tracker",
-      Description: "App Next.js avec Tailwind, Prisma et GraphQL. Interface responsive et API typée.",
-      Lien: "https://example.com",
-      Etudiants: ["Alice", "Bob"],
-      Visibilité: true,
-      Matière: ["Next.js", "Tailwind CSS", "Prisma"],
-      Likes: [],
-      Semestre: "S1",
-      Annee: 2023,
+      project: "Game Tracker",
+      description: "App Next.js avec Tailwind, Prisma et GraphQL. Interface responsive et API typée.",
+      link: "https://example.com",
+      students: ["Alice", "Bob"],
+      visibility: true,
+      subjects: ["Next.js", "Tailwind CSS", "Prisma"],
+      likes: [],
     },
   },
   {
     id: "2",
     fields: {
-      Nom: "Blog CMS",
-      Description: "Système de blog avec gestion des articles via GraphQL.",
-      Lien: "https://example.com",
-      Etudiants: ["Charlie"],
-      Visibilité: true,
-      Matière: ["Next.js", "Tailwind CSS", "GraphQL"],
-      Likes: [],
-      Semestre: "S2",
-      Annee: 2022,
+      project: "Blog CMS",
+      description: "Système de blog avec gestion des articles via GraphQL.",
+      link: "https://example.com",
+      students: ["Charlie"],
+      visibility: true,
+      subjects: ["Next.js", "Tailwind CSS", "GraphQL"],
+      likes: [],
     },
   },
   {
     id: "3",
     fields: {
-      Nom: "E-Commerce Dashboard",
-      Description: "Dashboard admin moderne avec Next.js, Prisma et Tailwind.",
-      Lien: "https://example.com",
-      Etudiants: ["David", "Emma"],
-      Visibilité: true,
-      Matière: ["Next.js", "Tailwind CSS", "Prisma"],
-      Likes: [],
-      Semestre: "S1",
-      Annee: 2024,
+      project: "E-Commerce Dashboard",
+      description: "Dashboard admin moderne avec Next.js, Prisma et Tailwind.",
+      link: "https://example.com",
+      students: ["David", "Emma"],
+      visibility: true,
+      subjects: ["Next.js", "Tailwind CSS", "Prisma"],
+      likes: [],
     },
   },
 ]
@@ -77,7 +72,7 @@ export default function ProjectPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project, index) => (
           <motion.div
-            key={index}
+            key={project.id}
             onClick={() => setSelectedProject(project)}
             whileHover={{
               scale: 1.02,
@@ -89,14 +84,16 @@ export default function ProjectPage() {
           >
             <div className="p-4">
               <CardHeader>
-                <CardTitle>{project.fields.Nom}</CardTitle>
+                <CardTitle>{project.fields.project}</CardTitle>
               </CardHeader>
 
               <CardFooter className="pt-4">
                 <div className="flex flex-col items-start space-y-2 w-full">
-                  <span className="text-sm font-semibold text-gray-700">Technologies utilisées</span>
+                  <span className="text-sm font-semibold text-gray-700">
+                    Technologies utilisées
+                  </span>
                   <div className="flex space-x-4">
-                    {project.fields.Matière?.map((tech, i) => (
+                    {project.fields.subjects?.map((tech, i) => (
                       <Image
                         key={i}
                         src={techIconMap[tech] || "/file.svg"}
@@ -115,24 +112,22 @@ export default function ProjectPage() {
       </div>
 
       {selectedProject && (
-        <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+        <Dialog
+          open={!!selectedProject}
+          onOpenChange={() => setSelectedProject(null)}
+        >
           <DialogContent className="backdrop-blur-sm bg-white/80 border-none max-w-lg">
             <DialogHeader>
-              <DialogTitle>{selectedProject.fields.Nom}</DialogTitle>
+              <DialogTitle>{selectedProject.fields.project}</DialogTitle>
               <DialogDescription>
-                Projet réalisé en <strong>{selectedProject.fields.Annee}</strong>, semestre{" "}
-                {selectedProject.fields.Semestre}
+                {selectedProject.fields.description}
               </DialogDescription>
             </DialogHeader>
-
-            <p className="text-sm text-muted-foreground mt-2">
-              {selectedProject.fields.Description}
-            </p>
 
             <div className="mt-4">
               <p className="font-semibold mb-2">Technologies utilisées</p>
               <div className="flex space-x-4">
-                {selectedProject.fields.Matière?.map((tech, i) => (
+                {selectedProject.fields.subjects?.map((tech, i) => (
                   <Image
                     key={i}
                     src={techIconMap[tech] || "/file.svg"}
@@ -144,6 +139,17 @@ export default function ProjectPage() {
                 ))}
               </div>
             </div>
+
+            {selectedProject.fields.link && (
+              <a
+                href={selectedProject.fields.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 block text-center bg-gray-100 hover:bg-gray-200 rounded px-4 py-2 text-sm font-medium text-gray-800"
+              >
+                Voir le projet
+              </a>
+            )}
           </DialogContent>
         </Dialog>
       )}
