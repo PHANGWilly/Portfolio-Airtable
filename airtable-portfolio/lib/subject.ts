@@ -1,5 +1,5 @@
 import { getTableRecords } from "@/utils/airtable";
-import { Matiere } from "@/types/Matiere";
+import { Matiere } from "@/types/Subject";
 
 const tableName = process.env.NEXT_PUBLIC_AIRTABLE_TABLE_MATIERE!;
 
