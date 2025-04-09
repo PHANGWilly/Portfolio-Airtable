@@ -1,11 +1,11 @@
-export type Projet = {
+export type Project = {
   id: string;
   fields: {
-    project: string; 
+    name: string;
     description?: string;
     link?: string;
     students?: string[];
-    visibility?: boolean;
+    visibility?: "checked" | undefined;
     subjects?: string[];
     likes?: string[];
   };

@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { motion } from "framer-motion"
-import Image from "next/image"
-import { Projet } from "@/types/Projet"
+import { useState } from "react";
+import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { Project } from "@/types/Project";
 
 import {
   Dialog,
@@ -23,15 +23,15 @@ const techIconMap: Record<string, string> = {
   "JavaScript": "/file.svg", // temporaire
 }
 
-const projects: Projet[] = [
+const projects: Project[] = [
   {
     id: "1",
     fields: {
-      project: "Game Tracker",
+      name: "Game Tracker",
       description: "App Next.js avec Tailwind, Prisma et GraphQL. Interface responsive et API typée.",
       link: "https://example.com",
       students: ["Alice", "Bob"],
-      visibility: true,
+      visibility: "checked",
       subjects: ["Next.js", "Tailwind CSS", "Prisma"],
       likes: [],
     },
@@ -39,11 +39,11 @@ const projects: Projet[] = [
   {
     id: "2",
     fields: {
-      project: "Blog CMS",
+      name: "Blog CMS",
       description: "Système de blog avec gestion des articles via GraphQL.",
       link: "https://example.com",
       students: ["Charlie"],
-      visibility: true,
+      visibility: "checked",
       subjects: ["Next.js", "Tailwind CSS", "GraphQL"],
       likes: [],
     },
@@ -51,11 +51,11 @@ const projects: Projet[] = [
   {
     id: "3",
     fields: {
-      project: "E-Commerce Dashboard",
+      name: "E-Commerce Dashboard",
       description: "Dashboard admin moderne avec Next.js, Prisma et Tailwind.",
       link: "https://example.com",
       students: ["David", "Emma"],
-      visibility: true,
+      visibility: "checked",
       subjects: ["Next.js", "Tailwind CSS", "Prisma"],
       likes: [],
     },
@@ -63,7 +63,7 @@ const projects: Projet[] = [
 ]
 
 export default function ProjectPage() {
-  const [selectedProject, setSelectedProject] = useState<Projet | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   return (
     <div className="p-6">
@@ -84,7 +84,7 @@ export default function ProjectPage() {
           >
             <div className="p-4">
               <CardHeader>
-                <CardTitle>{project.fields.project}</CardTitle>
+                <CardTitle>{project.fields.name}</CardTitle>
               </CardHeader>
 
               <CardFooter className="pt-4">
@@ -118,11 +118,16 @@ export default function ProjectPage() {
         >
           <DialogContent className="backdrop-blur-sm bg-white/80 border-none max-w-lg">
             <DialogHeader>
-              <DialogTitle>{selectedProject.fields.project}</DialogTitle>
+              <DialogTitle>{selectedProject.fields.name}</DialogTitle>
               <DialogDescription>
-                {selectedProject.fields.description}
+                {/* Projet réalisé en <strong>{selectedProject.fields.}</strong>, semestre{" "}
+                {selectedProject.fields.Semestre} */}
               </DialogDescription>
             </DialogHeader>
+
+            <p className="text-sm text-muted-foreground mt-2">
+              {selectedProject.fields.description}
+            </p>
 
             <div className="mt-4">
               <p className="font-semibold mb-2">Technologies utilisées</p>

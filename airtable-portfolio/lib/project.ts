@@ -1,14 +1,14 @@
 import { getTableRecords } from "@/utils/airtable";
-import { Projet } from "@/types/Projet";
+import { Project } from "@/types/Project";
 
 const tableName = process.env.NEXT_PUBLIC_AIRTABLE_TABLE_PROJET!;
 
-export const getProjets = async (): Promise<Projet[]> => {
+export const getProjets = async (): Promise<Project[]> => {
   const records = await getTableRecords(tableName);
-  return records as Projet[];
+  return records as Project[];
 };
 
-export const createProjet = async (fields: Partial<Projet["fields"]>) => {
+export const createProjet = async (fields: Partial<Project["fields"]>) => {
   const Airtable = await import("airtable");
   const base = new Airtable.default({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_API_KEY }).base(
     process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID!
@@ -18,7 +18,7 @@ export const createProjet = async (fields: Partial<Projet["fields"]>) => {
   return record[0];
 };
 
-export const updateProjet = async (id: string, fields: Partial<Projet["fields"]>) => {
+export const updateProjet = async (id: string, fields: Partial<Project["fields"]>) => {
   const Airtable = await import("airtable");
   const base = new Airtable.default({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_API_KEY }).base(
     process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID!
