@@ -79,8 +79,9 @@ export default function DashboardPage() {
         subjects: selectedProject.fields.subjects?.join(", ") || "",
         visibility: !!selectedProject.fields.visibility,
       });
+      setValue("students", selectedProject.fields.students || []);
     }
-  }, [selectedProject, reset]);
+  }, [selectedProject, reset, setValue]);
 
   const updateProject = async (data: any) => {
     if (!selectedProject) return;
@@ -177,10 +178,18 @@ export default function DashboardPage() {
               <Input {...register("name", { required: true })} placeholder="Nom du projet" />
               <Textarea {...register("description")} placeholder="Description" />
               <Input {...register("link")} placeholder="Lien du projet" />
+
+              {/* Sélection des étudiants */}
               <label className="flex flex-col text-sm gap-2">
                 Étudiants associés
                 <select
-                  {...register("students")}
+                  {...register("students")} 
+                  onChange={(e) =>
+                    setValue(
+                      "students",
+                      Array.from(e.target.selectedOptions, (option) => option.value)
+                    )
+                  }
                   multiple
                   className="border rounded px-2 py-1 bg-white text-sm"
                 >
@@ -191,11 +200,14 @@ export default function DashboardPage() {
                   ))}
                 </select>
               </label>
+
               <Input {...register("subjects")} placeholder="Technologies (ex: Tailwind, PHP)" />
+
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" {...register("visibility")} />
                 Visible
               </label>
+
               <DialogFooter>
                 <Button type="submit">Enregistrer</Button>
               </DialogFooter>
