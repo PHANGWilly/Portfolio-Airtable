@@ -6,6 +6,7 @@ export type Subject = {
     year: string;
     cycle: string;
     semester: string;
+    description: string;
     projects: string[];      
   };
 };
