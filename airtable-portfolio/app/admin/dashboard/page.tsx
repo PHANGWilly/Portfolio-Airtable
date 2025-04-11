@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Project } from "@/types/Project";
 import { Student } from "@/types/Student";
+import { Subject } from "@/types/Subject";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -38,15 +39,16 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { register, handleSubmit, reset, setValue } = useForm({
+  const { register, handleSubmit, reset, setValue, watch } = useForm({
     defaultValues: {
       name: "",
       description: "",
       link: "",
       students: [] as string[],
-      subjects: "",
+      subjects: [] as string[],
       visibility: true,
     },
   });
@@ -65,8 +67,15 @@ export default function DashboardPage() {
       setStudents(data);
     };
 
+    const fetchSubjects = async () => {
+      const res = await fetch("/api/subjects");
+      const data = await res.json();
+      setSubjects(data);
+    };
+
     fetchProjects();
     fetchStudents();
+    fetchSubjects();
   }, []);
 
   useEffect(() => {
@@ -76,10 +85,12 @@ export default function DashboardPage() {
         description: selectedProject.fields.description || "",
         link: selectedProject.fields.link || "",
         students: selectedProject.fields.students || [],
-        subjects: selectedProject.fields.subjects?.join(", ") || "",
+        subjects: selectedProject.fields.subjects || [],
         visibility: !!selectedProject.fields.visibility,
       });
+
       setValue("students", selectedProject.fields.students || []);
+      setValue("subjects", selectedProject.fields.subjects || []);
     }
   }, [selectedProject, reset, setValue]);
 
@@ -97,10 +108,9 @@ export default function DashboardPage() {
           students: Array.isArray(data.students)
             ? data.students
             : [data.students].filter(Boolean),
-          subjects: data.subjects
-            ?.split(",")
-            .map((s: string) => s.trim())
-            .filter(Boolean),
+          subjects: Array.isArray(data.subjects)
+            ? data.subjects
+            : [data.subjects].filter(Boolean),
           visibility: !!data.visibility,
         }),
       });
@@ -179,29 +189,61 @@ export default function DashboardPage() {
               <Textarea {...register("description")} placeholder="Description" />
               <Input {...register("link")} placeholder="Lien du projet" />
 
-              {/* Sélection des étudiants */}
+              {/* Étudiants */}
               <label className="flex flex-col text-sm gap-2">
                 Étudiants associés
-                <select
-                  {...register("students")} 
-                  onChange={(e) =>
-                    setValue(
-                      "students",
-                      Array.from(e.target.selectedOptions, (option) => option.value)
-                    )
-                  }
-                  multiple
-                  className="border rounded px-2 py-1 bg-white text-sm"
-                >
+                <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
                   {students.map((student) => (
-                    <option key={student.id} value={student.id}>
+                    <label key={student.id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        value={student.id}
+                        checked={watch("students")?.includes(student.id)}
+                        onChange={(e) => {
+                          const current = watch("students") || [];
+                          if (e.target.checked) {
+                            setValue("students", [...current, student.id]);
+                          } else {
+                            setValue(
+                              "students",
+                              current.filter((id: string) => id !== student.id)
+                            );
+                          }
+                        }}
+                      />
                       {student.fields.firstname} {student.fields.lastname}
-                    </option>
+                    </label>
                   ))}
-                </select>
+                </div>
               </label>
 
-              <Input {...register("subjects")} placeholder="Technologies (ex: Tailwind, PHP)" />
+              {/* Subjects */}
+              <label className="flex flex-col text-sm gap-2">
+                Matières associées
+                <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
+                  {subjects.map((subject) => (
+                    <label key={subject.id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        value={subject.id}
+                        checked={watch("subjects")?.includes(subject.id)}
+                        onChange={(e) => {
+                          const current = watch("subjects") || [];
+                          if (e.target.checked) {
+                            setValue("subjects", [...current, subject.id]);
+                          } else {
+                            setValue(
+                              "subjects",
+                              current.filter((id: string) => id !== subject.id)
+                            );
+                          }
+                        }}
+                      />
+                      {subject.fields.name} — S{subject.fields.semester} {subject.fields.year}
+                    </label>
+                  ))}
+                </div>
+              </label>
 
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" {...register("visibility")} />
