@@ -1,37 +1,37 @@
 import { getTableRecords } from "@/utils/airtable";
-import { Etudiant } from "@/types/Etudiant";
+import { Student } from "@/types/Student";
 
-const tableName = process.env.NEXT_PUBLIC_AIRTABLE_TABLE_ETUDIANT!;
+const tableName = process.env.AIRTABLE_TABLE_STUDENT!;
 
-export const getEtudiants = async (): Promise<Etudiant[]> => {
+export const getStudents = async (): Promise<Student[]> => {
   const records = await getTableRecords(tableName);
-  return records as Etudiant[];
+  return records as Student[];
 };
 
-export const createEtudiant = async (fields: Partial<Etudiant["fields"]>) => {
+export const createStudent = async (fields: Partial<Student["fields"]>) => {
   const Airtable = await import("airtable");
-  const base = new Airtable.default({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_API_KEY }).base(
-    process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID!
+  const base = new Airtable.default({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    process.env.AIRTABLE_BASE_ID!
   );
   const table = base(tableName);
   const record = await table.create([{ fields }]);
   return record[0];
 };
 
-export const updateEtudiant = async (id: string, fields: Partial<Etudiant["fields"]>) => {
+export const updateStudent = async (id: string, fields: Partial<Student["fields"]>) => {
   const Airtable = await import("airtable");
-  const base = new Airtable.default({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_API_KEY }).base(
-    process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID!
+  const base = new Airtable.default({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    process.env.AIRTABLE_BASE_ID!
   );
   const table = base(tableName);
   const record = await table.update([{ id, fields }]);
   return record[0];
 };
 
-export const deleteEtudiant = async (id: string) => {
+export const deleteStudent = async (id: string) => {
   const Airtable = await import("airtable");
-  const base = new Airtable.default({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_API_KEY }).base(
-    process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID!
+  const base = new Airtable.default({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    process.env.AIRTABLE_BASE_ID!
   );
   const table = base(tableName);
   await table.destroy([id]);

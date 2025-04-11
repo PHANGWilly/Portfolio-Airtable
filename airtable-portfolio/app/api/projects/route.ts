@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getTableRecords } from "@/utils/airtable";
 import { Project } from "@/types/Project";
 import { Subject } from "@/types/Subject";
+import { createProjet } from "@/lib/project";
 
 export async function GET() {
   try {
@@ -23,7 +24,7 @@ export async function GET() {
         ...project,
         fields: {
           ...project.fields,
-          subjects: relatedSubjects, 
+          subjectNames: relatedSubjects,
         },
       };
     });
@@ -31,5 +32,16 @@ export async function GET() {
     return NextResponse.json(enrichedProjects);
   } catch (error) {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const newRecord = await createProjet(body);
+    return NextResponse.json(newRecord, { status: 201 });
+  } catch (error) {
+    console.error("Erreur POST /api/projects:", error);
+    return NextResponse.json({ error: "Erreur création projet" }, { status: 500 });
   }
 }

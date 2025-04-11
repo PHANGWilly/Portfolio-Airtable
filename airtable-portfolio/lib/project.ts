@@ -1,7 +1,7 @@
 import { getTableRecords } from "@/utils/airtable";
 import { Project } from "@/types/Project";
 
-const tableName = process.env.NEXT_PUBLIC_AIRTABLE_TABLE_PROJET!;
+const tableName = process.env.AIRTABLE_TABLE_PROJET!;
 
 export const getProjets = async (): Promise<Project[]> => {
   const records = await getTableRecords(tableName);
@@ -10,8 +10,8 @@ export const getProjets = async (): Promise<Project[]> => {
 
 export const createProjet = async (fields: Partial<Project["fields"]>) => {
   const Airtable = await import("airtable");
-  const base = new Airtable.default({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_API_KEY }).base(
-    process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID!
+  const base = new Airtable.default({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    process.env.AIRTABLE_BASE_ID!
   );
   const table = base(tableName);
   const record = await table.create([{ fields }]);
@@ -19,9 +19,10 @@ export const createProjet = async (fields: Partial<Project["fields"]>) => {
 };
 
 export const updateProjet = async (id: string, fields: Partial<Project["fields"]>) => {
+  console.log("Mise à jour projet :", id, fields);
   const Airtable = await import("airtable");
-  const base = new Airtable.default({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_API_KEY }).base(
-    process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID!
+  const base = new Airtable.default({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    process.env.AIRTABLE_BASE_ID!
   );
   const table = base(tableName);
   const record = await table.update([{ id, fields }]);
@@ -30,8 +31,8 @@ export const updateProjet = async (id: string, fields: Partial<Project["fields"]
 
 export const deleteProjet = async (id: string) => {
   const Airtable = await import("airtable");
-  const base = new Airtable.default({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_API_KEY }).base(
-    process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID!
+  const base = new Airtable.default({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    process.env.AIRTABLE_BASE_ID!
   );
   const table = base(tableName);
   await table.destroy([id]);

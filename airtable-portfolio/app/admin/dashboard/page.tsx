@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Project } from "@/types/Project";
 import { motion } from "framer-motion";
 import Image from "next/image";
+
 import {
   Card,
   CardHeader,
@@ -14,9 +16,13 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 const techIconMap: Record<string, string> = {
   "Next.js": "/next.svg",
@@ -31,6 +37,17 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { register, handleSubmit, reset } = useForm({
+    defaultValues: {
+      name: "",
+      description: "",
+      link: "",
+      students: "",
+      subjects: "",
+      visibility: true,
+    },
+  });
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -48,6 +65,48 @@ export default function DashboardPage() {
     fetchProjects();
   }, []);
 
+  useEffect(() => {
+    if (selectedProject) {
+      reset({
+        name: selectedProject.fields.name,
+        description: selectedProject.fields.description || "",
+        link: selectedProject.fields.link || "",
+        students: selectedProject.fields.students?.join(", ") || "",
+        subjects: selectedProject.fields.subjects?.join(", ") || "",
+        visibility: !!selectedProject.fields.visibility,
+
+      });
+    }
+  }, [selectedProject, reset]);
+
+  const updateProject = async (data: any) => {
+    if (!selectedProject) return;
+
+    try {
+      const res = await fetch(`/api/projects/${selectedProject.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          description: data.description,
+          link: data.link,
+          students: data.students?.split(",").map((s: string) => s.trim()),
+          subjects: data.subjects?.split(",").map((s: string) => s.trim()),
+          visibility: !!data.visibility,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Erreur mise à jour");
+
+      const updatedList = await fetch("/api/projects");
+      const json = await updatedList.json();
+      setProjects(json);
+      setSelectedProject(null);
+    } catch (err) {
+      console.error("Erreur update :", err);
+    }
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Dashboard Admin</h1>
@@ -58,7 +117,7 @@ export default function DashboardPage() {
         <p className="text-gray-500">Aucun projet trouvé.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
+          {projects.map((project) => (
             <motion.div
               key={project.id}
               onClick={() => setSelectedProject(project)}
@@ -97,37 +156,29 @@ export default function DashboardPage() {
       )}
 
       {selectedProject && (
-        <Dialog
-          open={!!selectedProject}
-          onOpenChange={() => setSelectedProject(null)}
-        >
+        <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
           <DialogContent className="backdrop-blur-sm bg-white/80 border-none max-w-lg">
             <DialogHeader>
-              <DialogTitle>{selectedProject.fields.name}</DialogTitle>
+              <DialogTitle>Modifier le projet</DialogTitle>
               <DialogDescription>
-                {/* Tu peux ajouter semestre/année ici si besoin */}
+                Tu peux éditer les infos du projet ici.
               </DialogDescription>
             </DialogHeader>
 
-            <p className="text-sm text-muted-foreground mt-2">
-              {selectedProject.fields.description}
-            </p>
-
-            <div className="mt-4">
-              <p className="font-semibold mb-2">Technologies utilisées</p>
-              <div className="flex space-x-4">
-                {selectedProject.fields.subjects?.map((tech, i) => (
-                  <Image
-                    key={i}
-                    src={techIconMap[tech] || "/file.svg"}
-                    alt={tech}
-                    width={36}
-                    height={36}
-                    title={tech}
-                  />
-                ))}
-              </div>
-            </div>
+            <form onSubmit={handleSubmit(updateProject)} className="space-y-4">
+              <Input {...register("name", { required: true })} placeholder="Nom du projet" />
+              <Textarea {...register("description")} placeholder="Description" />
+              <Input {...register("link")} placeholder="Lien du projet" />
+              <Input {...register("students")} placeholder="Étudiants (ex: Alice, Bob)" />
+              <Input {...register("subjects")} placeholder="Technologies (ex: Tailwind, PHP)" />
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" {...register("visibility")} />
+                Visible
+              </label>
+              <DialogFooter>
+                <Button type="submit">Enregistrer</Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       )}

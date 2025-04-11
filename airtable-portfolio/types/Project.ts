@@ -5,7 +5,7 @@ export type Project = {
     description?: string;
     link?: string;
     students?: string[];
-    visibility?: "checked" | undefined;
+    visibility?: boolean;
     subjects?: string[];
     likes?: string[];
   };
