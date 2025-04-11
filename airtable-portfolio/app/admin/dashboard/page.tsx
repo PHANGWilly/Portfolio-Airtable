@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Project } from "@/types/Project";
+import { Student } from "@/types/Student";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -36,14 +37,15 @@ const techIconMap: Record<string, string> = {
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { register, handleSubmit, reset } = useForm({
+  const { register, handleSubmit, reset, setValue } = useForm({
     defaultValues: {
       name: "",
       description: "",
       link: "",
-      students: "",
+      students: [] as string[],
       subjects: "",
       visibility: true,
     },
@@ -51,18 +53,20 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      try {
-        const res = await fetch("/api/projects");
-        const data = await res.json();
-        setProjects(data);
-      } catch (err) {
-        console.error("Erreur de chargement des projets:", err);
-      } finally {
-        setLoading(false);
-      }
+      const res = await fetch("/api/projects");
+      const data = await res.json();
+      setProjects(data);
+      setLoading(false);
+    };
+
+    const fetchStudents = async () => {
+      const res = await fetch("/api/students");
+      const data = await res.json();
+      setStudents(data);
     };
 
     fetchProjects();
+    fetchStudents();
   }, []);
 
   useEffect(() => {
@@ -71,10 +75,9 @@ export default function DashboardPage() {
         name: selectedProject.fields.name,
         description: selectedProject.fields.description || "",
         link: selectedProject.fields.link || "",
-        students: selectedProject.fields.students?.join(", ") || "",
+        students: selectedProject.fields.students || [],
         subjects: selectedProject.fields.subjects?.join(", ") || "",
         visibility: !!selectedProject.fields.visibility,
-
       });
     }
   }, [selectedProject, reset]);
@@ -90,8 +93,13 @@ export default function DashboardPage() {
           name: data.name,
           description: data.description,
           link: data.link,
-          students: data.students?.split(",").map((s: string) => s.trim()),
-          subjects: data.subjects?.split(",").map((s: string) => s.trim()),
+          students: Array.isArray(data.students)
+            ? data.students
+            : [data.students].filter(Boolean),
+          subjects: data.subjects
+            ?.split(",")
+            .map((s: string) => s.trim())
+            .filter(Boolean),
           visibility: !!data.visibility,
         }),
       });
@@ -169,7 +177,20 @@ export default function DashboardPage() {
               <Input {...register("name", { required: true })} placeholder="Nom du projet" />
               <Textarea {...register("description")} placeholder="Description" />
               <Input {...register("link")} placeholder="Lien du projet" />
-              <Input {...register("students")} placeholder="Étudiants (ex: Alice, Bob)" />
+              <label className="flex flex-col text-sm gap-2">
+                Étudiants associés
+                <select
+                  {...register("students")}
+                  multiple
+                  className="border rounded px-2 py-1 bg-white text-sm"
+                >
+                  {students.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {student.fields.firstname} {student.fields.lastname}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <Input {...register("subjects")} placeholder="Technologies (ex: Tailwind, PHP)" />
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" {...register("visibility")} />

@@ -1,5 +1,7 @@
 import { getTableRecords } from "@/utils/airtable";
 import { Project } from "@/types/Project";
+import { syncStudentProjects } from "./student";
+
 
 const tableName = process.env.AIRTABLE_TABLE_PROJET!;
 
@@ -19,15 +21,32 @@ export const createProjet = async (fields: Partial<Project["fields"]>) => {
 };
 
 export const updateProjet = async (id: string, fields: Partial<Project["fields"]>) => {
-  console.log("Mise à jour projet :", id, fields);
   const Airtable = await import("airtable");
-  const base = new Airtable.default({ apiKey: process.env.AIRTABLE_API_KEY }).base(
-    process.env.AIRTABLE_BASE_ID!
-  );
-  const table = base(tableName);
-  const record = await table.update([{ id, fields }]);
+  const base = new Airtable.default({
+    apiKey: process.env.AIRTABLE_API_KEY,
+  }).base(process.env.AIRTABLE_BASE_ID!);
+
+  const table = base(process.env.AIRTABLE_TABLE_PROJET!);
+
+  const safeFields: Partial<Project["fields"]> = {
+    ...(fields.name && { name: fields.name }),
+    ...(fields.description && { description: fields.description }),
+    ...(fields.link && fields.link !== "" && { link: fields.link }),
+    ...(Array.isArray(fields.students) && { students: fields.students }),
+    ...(Array.isArray(fields.subjects) && { subjects: fields.subjects }),
+    ...(typeof fields.visibility === "boolean" && { visibility: fields.visibility }),
+  };
+
+  console.log("Mise à jour projet :", id, safeFields);
+
+  const record = await table.update([{ id, fields: safeFields }]);
+  if (fields.students) {
+    const previous = fields.students || [];
+    await syncStudentProjects(id, fields.students, previous);
+  }
   return record[0];
 };
+
 
 export const deleteProjet = async (id: string) => {
   const Airtable = await import("airtable");
