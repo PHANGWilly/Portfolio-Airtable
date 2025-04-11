@@ -5,6 +5,7 @@ import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Project } from "@/types/Project"
+import { Subject } from "@/types/Subject"
 import {
   Dialog,
   DialogContent,
@@ -21,30 +22,42 @@ const techIconMap: Record<string, string> = {
   "PHP": "/php-logo.svg",
   "JavaScript": "/java-script.svg",
   "Symfony": "/symfony.svg",
-  "test": "/test.svg"
+  "test": "/test.svg",
+  "NodeJS": "/Node.js_logo.svg",
+  "Go": "/golang.svg"
 }
 
 export default function ProjectPage() {
   const [projects, setProjects] = useState<Project[]>([])
+  const [subjects, setSubjects] = useState<Subject[]>([])
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/projects")
-        const data = await res.json()
-        console.log("Résultat API Projects:", data)
-        setProjects(data)
+        const [projRes, subjRes] = await Promise.all([
+          fetch("/api/projects"),
+          fetch("/api/subjects"),
+        ])
+
+        const projectsData = await projRes.json()
+        const subjectsData = await subjRes.json()
+
+        setProjects(projectsData)
+        setSubjects(subjectsData)
       } catch (err) {
-        console.error("Erreur de chargement des projets:", err)
+        console.error("Erreur de chargement:", err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchProjects()
+    fetchData()
   }, [])
+
+  const getSubjectNameById = (id: string) =>
+    subjects.find((s) => s.id === id)?.fields.name || "Inconnu"
 
   return (
     <div className="p-6">
@@ -77,16 +90,19 @@ export default function ProjectPage() {
                       Technologies utilisées
                     </span>
                     <div className="flex space-x-4">
-                      {project.fields.subjects?.map((tech, i) => (
-                        <Image
-                          key={i}
-                          src={techIconMap[tech] || "/file.svg"}
-                          alt={tech}
-                          width={36}
-                          height={36}
-                          title={tech}
-                        />
-                      ))}
+                      {project.fields.subjects?.map((subjectId, i) => {
+                        const subjectName = getSubjectNameById(subjectId)
+                        return (
+                          <Image
+                            key={i}
+                            src={techIconMap[subjectName] || "/file.svg"}
+                            alt={subjectName}
+                            width={36}
+                            height={36}
+                            title={subjectName}
+                          />
+                        )
+                      })}
                     </div>
                   </div>
                 </CardFooter>
@@ -109,12 +125,11 @@ export default function ProjectPage() {
             <div className="mt-4">
               <p className="font-semibold mb-2">Technologies utilisées</p>
               <ul className="list-disc list-inside text-sm text-gray-700">
-                {selectedProject.fields.subjects?.map((tech, i) => (
-                  <li key={i}>{tech}</li>
+                {selectedProject.fields.subjects?.map((id, i) => (
+                  <li key={i}>{getSubjectNameById(id)}</li>
                 ))}
               </ul>
             </div>
-
 
             {selectedProject.fields.link && (
               <a
