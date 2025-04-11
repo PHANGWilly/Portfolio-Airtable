@@ -24,7 +24,7 @@ export async function GET() {
         ...project,
         fields: {
           ...project.fields,
-          subjects: relatedSubjects,
+          subjectNames: relatedSubjects,
         },
       };
     });
