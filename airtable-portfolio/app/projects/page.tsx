@@ -115,17 +115,6 @@ export default function ProjectPage() {
               </ul>
             </div>
 
-
-            {selectedProject.fields.link && (
-              <a
-                href={selectedProject.fields.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 block text-center bg-gray-100 hover:bg-gray-200 rounded px-4 py-2 text-sm font-medium text-gray-800"
-              >
-                Voir le projet
-              </a>
-            )}
           </DialogContent>
         </Dialog>
       )}
