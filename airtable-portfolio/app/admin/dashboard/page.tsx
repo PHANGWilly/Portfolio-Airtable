@@ -252,6 +252,37 @@ export default function DashboardPage() {
 
               <DialogFooter>
                 <Button type="submit">Enregistrer</Button>
+
+               <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={async () => {
+                    if (!selectedProject) return;
+                    if (!confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) return;
+
+                    try {
+
+                      const res = await fetch(`/api/projects/${selectedProject.id}`, {
+                        method: "DELETE",
+                      });
+
+                      const result = await res.json();
+
+                      if (!res.ok) throw new Error("Erreur suppression");
+
+                      const updated = await fetch("/api/projects");
+                      const data = await updated.json();
+                      setProjects(data);
+                      setSelectedProject(null);
+                    } catch (err) {
+                      console.error("Erreur suppression :", err);
+                      alert("La suppression a échoué.");
+                    }
+                  }}
+                  >
+                  Supprimer
+                </Button>
+
               </DialogFooter>
             </form>
           </DialogContent>

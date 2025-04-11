@@ -50,10 +50,18 @@ export const updateProjet = async (id: string, fields: Partial<Project["fields"]
 
 export const deleteProjet = async (id: string) => {
   const Airtable = await import("airtable");
-  const base = new Airtable.default({ apiKey: process.env.AIRTABLE_API_KEY }).base(
-    process.env.AIRTABLE_BASE_ID!
-  );
-  const table = base(tableName);
-  await table.destroy([id]);
+
+  const base = new Airtable.default({
+    apiKey: process.env.AIRTABLE_API_KEY,
+  }).base(process.env.AIRTABLE_BASE_ID!);
+
+  const table = base("project"); 
+  const deleted = await table.destroy([id]);
+  console.log("Projet supprimé :", deleted);
+
   return { success: true };
 };
+
+
+
+

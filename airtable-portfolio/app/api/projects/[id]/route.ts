@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateProjet } from "@/lib/project";
+import { deleteProjet } from "@/lib/project";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -31,3 +32,21 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const url = new URL(req.url);
+    const id = url.pathname.split("/").pop();
+
+    if (!id) {
+      return NextResponse.json({ error: "ID manquant" }, { status: 400 });
+    }
+
+    const deleted = await deleteProjet(id); 
+    return NextResponse.json({ success: true, record: deleted });
+  } catch (error) {
+    console.error("Erreur DELETE /api/projects/[id]:", error);
+    return NextResponse.json({ error: "Erreur suppression" }, { status: 500 });
+  }
+}
+
