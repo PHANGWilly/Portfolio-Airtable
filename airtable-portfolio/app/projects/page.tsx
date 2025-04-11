@@ -32,6 +32,16 @@ export default function ProjectPage() {
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
+  const [anonUserId, setAnonUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    let stored = localStorage.getItem("anonUserId")
+    if (!stored) {
+      stored = `anon_${crypto.randomUUID()}`
+      localStorage.setItem("anonUserId", stored)
+    }
+    setAnonUserId(stored)
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,10 +50,8 @@ export default function ProjectPage() {
           fetch("/api/projects"),
           fetch("/api/subjects"),
         ])
-
         const projectsData = await projRes.json()
         const subjectsData = await subjRes.json()
-
         setProjects(projectsData)
         setSubjects(subjectsData)
       } catch (err) {
@@ -58,6 +66,38 @@ export default function ProjectPage() {
 
   const getSubjectNameById = (id: string) =>
     subjects.find((s) => s.id === id)?.fields.name || "Inconnu"
+
+  const hasLiked = (projectId: string) => {
+    const liked = JSON.parse(localStorage.getItem("likedProjects") || "[]")
+    return liked.includes(projectId)
+  }
+
+  const registerLike = (projectId: string) => {
+    const liked = JSON.parse(localStorage.getItem("likedProjects") || "[]")
+    const updated = Array.from(new Set([...liked, projectId]))
+    localStorage.setItem("likedProjects", JSON.stringify(updated))
+  }
+
+  const handleLike = async (project: Project) => {
+    if (!anonUserId || hasLiked(project.id)) return
+
+    await fetch("/api/likes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        project: project.id,
+        user: anonUserId,
+      }),
+    })
+
+    registerLike(project.id)
+
+    // Refresh projects
+    const res = await fetch("/api/projects")
+    const data = await res.json()
+    setProjects(data)
+    setSelectedProject(data.find((p: Project) => p.id === project.id) || null)
+  }
 
   return (
     <div className="p-6">
@@ -84,12 +124,12 @@ export default function ProjectPage() {
                   <CardTitle>{project.fields.name}</CardTitle>
                 </CardHeader>
 
-                <CardFooter className="pt-4">
-                  <div className="flex flex-col items-start space-y-2 w-full">
+                <CardFooter className="pt-4 flex flex-col items-start space-y-2">
+                  <div>
                     <span className="text-sm font-semibold text-gray-700">
                       Technologies utilisées
                     </span>
-                    <div className="flex space-x-4">
+                    <div className="flex space-x-4 mt-1">
                       {project.fields.subjects?.map((subjectId, i) => {
                         const subjectName = getSubjectNameById(subjectId)
                         return (
@@ -105,6 +145,10 @@ export default function ProjectPage() {
                       })}
                     </div>
                   </div>
+
+                  <span className="text-sm text-gray-600">
+                    👍 {project.fields.likes?.length || 0} like(s)
+                  </span>
                 </CardFooter>
               </div>
             </motion.div>
@@ -113,7 +157,10 @@ export default function ProjectPage() {
       )}
 
       {selectedProject && (
-        <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+        <Dialog
+          open={!!selectedProject}
+          onOpenChange={() => setSelectedProject(null)}
+        >
           <DialogContent className="backdrop-blur-sm bg-white/80 border-none max-w-lg">
             <DialogHeader>
               <DialogTitle>{selectedProject.fields.name}</DialogTitle>
@@ -130,6 +177,23 @@ export default function ProjectPage() {
                 ))}
               </ul>
             </div>
+
+            <div className="mt-4 text-center text-sm text-gray-600">
+              👍 {selectedProject.fields.likes?.length || 0} like(s)
+            </div>
+
+            {hasLiked(selectedProject.id) ? (
+              <p className="mt-4 text-green-600 text-center text-sm">
+                Vous aimez déjà ce projet !
+              </p>
+            ) : (
+              <button
+                onClick={() => handleLike(selectedProject)}
+                className="mt-4 w-full bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-4 rounded"
+              >
+                👍 J'aime ce projet
+              </button>
+            )}
 
             {selectedProject.fields.link && (
               <a
