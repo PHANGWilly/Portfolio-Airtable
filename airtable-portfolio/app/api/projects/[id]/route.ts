@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateProjet } from "@/lib/project";
 import { deleteProjet } from "@/lib/project";
+import { createProjet } from "@/lib/project";
+
 
 export async function PUT(req: NextRequest) {
   try {
@@ -50,3 +52,32 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
+export async function POST(req: NextRequest) {
+  try {
+    const data = await req.json();
+
+    const created = await createProjet({
+      name: data.name,
+      description: data.description || "",
+      link: data.link || "",
+      students: Array.isArray(data.students)
+        ? data.students.filter((s: string) => s !== "")
+        : [],
+      subjects: Array.isArray(data.subjects)
+        ? data.subjects.filter((s: string) => s !== "")
+        : [],
+      visibility: data.visibility === true,
+    });
+
+
+    return NextResponse.json({ success: true, record: created }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        error: "Erreur création",
+        details: error?.message || String(error),
+      },
+      { status: 500 }
+    );
+  }
+}

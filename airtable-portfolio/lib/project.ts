@@ -12,13 +12,26 @@ export const getProjets = async (): Promise<Project[]> => {
 
 export const createProjet = async (fields: Partial<Project["fields"]>) => {
   const Airtable = await import("airtable");
-  const base = new Airtable.default({ apiKey: process.env.AIRTABLE_API_KEY }).base(
-    process.env.AIRTABLE_BASE_ID!
-  );
-  const table = base(tableName);
-  const record = await table.create([{ fields }]);
+
+  const base = new Airtable.default({
+    apiKey: process.env.AIRTABLE_API_KEY,
+  }).base(process.env.AIRTABLE_BASE_ID!);
+
+  const table = base("project"); 
+
+  const safeFields: Partial<Project["fields"]> = {
+    ...(fields.name && { name: fields.name }),
+    ...(fields.description && { description: fields.description }),
+    ...(fields.link && fields.link !== "" && { link: fields.link }),
+    ...(Array.isArray(fields.students) && { students: fields.students }),
+    ...(Array.isArray(fields.subjects) && { subjects: fields.subjects }),
+    ...(typeof fields.visibility === "boolean" && { visibility: fields.visibility }),
+  };
+
+  const record = await table.create([{ fields: safeFields }]);
   return record[0];
 };
+
 
 export const updateProjet = async (id: string, fields: Partial<Project["fields"]>) => {
   const Airtable = await import("airtable");
