@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Student } from "@/types/Student";
 import { Project } from "@/types/Project";
+import AdminNavbar from "@/components/AdminNavbar";
 import {
   Dialog,
   DialogContent,
@@ -31,21 +32,19 @@ export default function StudentAdminPage() {
     },
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     const studentRes = await fetch("/api/students");
     const studentData = await studentRes.json();
-    console.log("📦 Données reçues de /api/students :", studentData);
-
-    setStudents(studentData);
-
     const projectRes = await fetch("/api/projects");
     const projectData = await projectRes.json();
+
+    setStudents(studentData);
     setProjects(projectData);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (selectedStudent) {
@@ -97,63 +96,80 @@ export default function StudentAdminPage() {
 
   const deleteStudent = async (id: string) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cet étudiant ?")) return;
-  
+
     try {
       const res = await fetch(`/api/students/${id}`, {
         method: "DELETE",
       });
-  
+
       if (!res.ok) throw new Error("Erreur suppression");
-  
+
       await fetchData();
-      setSelectedStudent(null); 
+      setSelectedStudent(null);
     } catch (err) {
       console.error("Erreur suppression étudiant :", err);
     }
   };
-  
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Gestion des étudiants</h1>
+    <div className="flex">
+      <AdminNavbar />
 
-      <Button onClick={() => {
-        reset();              
-        setSelectedStudent(null); 
-        setIsCreating(true);   
-        }}>
-        Ajouter un étudiant
-      </Button>
+      <main className="flex-1 p-6">
+        <h1 className="text-3xl font-bold mb-6">Gestion des étudiants</h1>
 
+        <Button
+          onClick={() => {
+            reset();
+            setSelectedStudent(null);
+            setIsCreating(true);
+          }}
+          className="mb-4"
+        >
+          Ajouter un étudiant
+        </Button>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        {students.map((student) => (
-          <div
-            key={student.id}
-            className="border p-4 rounded-lg shadow-sm cursor-pointer bg-white"
-            onClick={() => setSelectedStudent(student)}
-          >
-            <h2 className="font-semibold text-lg">{student.fields.firstname} {student.fields.lastname}</h2>
-            <p className="text-sm text-gray-600">{student.fields.email}</p>
-            <p className="text-sm text-gray-600">Classe : {student.fields.class}</p>
-          </div>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {students.map((student) => (
+            <div
+              key={student.id}
+              className="border p-4 rounded-lg shadow-sm cursor-pointer bg-white"
+              onClick={() => setSelectedStudent(student)}
+            >
+              <h2 className="font-semibold text-lg">
+                {student.fields.firstname} {student.fields.lastname}
+              </h2>
+              <p className="text-sm text-gray-600">{student.fields.email}</p>
+              <p className="text-sm text-gray-600">Classe : {student.fields.class}</p>
+            </div>
+          ))}
+        </div>
+      </main>
 
       {(isCreating || selectedStudent) && (
-        <Dialog open={isCreating || !!selectedStudent} onOpenChange={() => {
-          setIsCreating(false);
-          setSelectedStudent(null);
-        }}>
+        <Dialog
+          open={isCreating || !!selectedStudent}
+          onOpenChange={() => {
+            setIsCreating(false);
+            setSelectedStudent(null);
+          }}
+        >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{isCreating ? "Ajouter un étudiant" : "Modifier l’étudiant"}</DialogTitle>
+              <DialogTitle>
+                {isCreating ? "Ajouter un étudiant" : "Modifier l’étudiant"}
+              </DialogTitle>
               <DialogDescription>
-                {isCreating ? "Remplis le formulaire pour ajouter un étudiant." : "Tu peux modifier les infos de l’étudiant."}
+                {isCreating
+                  ? "Remplis le formulaire pour ajouter un étudiant."
+                  : "Tu peux modifier les infos de l’étudiant."}
               </DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={handleSubmit(isCreating ? createStudent : updateStudent)} className="space-y-4">
+            <form
+              onSubmit={handleSubmit(isCreating ? createStudent : updateStudent)}
+              className="space-y-4"
+            >
               <Input {...register("firstname", { required: true })} placeholder="Prénom" />
               <Input {...register("lastname", { required: true })} placeholder="Nom" />
               <Input {...register("email", { required: true })} placeholder="Email" />

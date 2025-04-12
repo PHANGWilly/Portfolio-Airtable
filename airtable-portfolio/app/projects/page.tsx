@@ -92,7 +92,6 @@ export default function ProjectPage() {
 
     registerLike(project.id)
 
-    // Refresh projects
     const res = await fetch("/api/projects")
     const data = await res.json()
     setProjects(data)
@@ -101,7 +100,7 @@ export default function ProjectPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Mes Projets</h1>
+      <h1 className="text-5xl font-bold my-6">Les Projets</h1>
 
       {loading ? (
         <p>Chargement...</p>

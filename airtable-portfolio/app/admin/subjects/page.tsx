@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Subject } from "@/types/Subject";
 import { Project } from "@/types/Project";
-
+import AdminNavbar from "@/components/AdminNavbar";
 import {
   Dialog,
   DialogContent,
@@ -42,7 +42,6 @@ export default function SubjectAdminPage() {
     ]);
     const subjectData = await subjectRes.json();
     const projectData = await projectRes.json();
-
     setSubjects(subjectData);
     setProjects(projectData);
   };
@@ -67,16 +66,13 @@ export default function SubjectAdminPage() {
 
   const updateSubject = async (data: any) => {
     if (!selectedSubject) return;
-
     try {
       const res = await fetch(`/api/subjects/${selectedSubject.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
       if (!res.ok) throw new Error("Erreur mise à jour");
-
       await fetchData();
       setSelectedSubject(null);
     } catch (err) {
@@ -91,9 +87,7 @@ export default function SubjectAdminPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
       if (!res.ok) throw new Error("Erreur création");
-
       await fetchData();
       setIsCreating(false);
     } catch (err) {
@@ -103,14 +97,11 @@ export default function SubjectAdminPage() {
 
   const deleteSubject = async (id: string) => {
     if (!confirm("Confirmer la suppression ?")) return;
-
     try {
       const res = await fetch(`/api/subjects/${id}`, {
         method: "DELETE",
       });
-
       if (!res.ok) throw new Error("Erreur suppression");
-
       await fetchData();
       setSelectedSubject(null);
     } catch (err) {
@@ -119,49 +110,64 @@ export default function SubjectAdminPage() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Gestion des matières</h1>
+    <div className="flex">
+      <AdminNavbar />
 
-      <Button
-        className="mb-4"
-        onClick={() => {
+      <main className="flex-1 p-6">
+        <h1 className="text-3xl font-bold mb-6">Gestion des matières</h1>
+
+        <Button
+          className="mb-4"
+          onClick={() => {
             reset();
-            setSelectedSubject(null); 
-            setIsCreating(true); 
-        }}
+            setSelectedSubject(null);
+            setIsCreating(true);
+          }}
         >
-        Ajouter une matière
-      </Button>
+          Ajouter une matière
+        </Button>
 
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {subjects.map((subject) => (
-          <div
-            key={subject.id}
-            className="border p-4 rounded-lg shadow-sm bg-white cursor-pointer"
-            onClick={() => setSelectedSubject(subject)}
-          >
-            <h2 className="font-semibold text-lg">{subject.fields.name}</h2>
-            <p className="text-sm text-gray-600">Année : {subject.fields.year} | S{subject.fields.semester}</p>
-            <p className="text-sm text-gray-600 italic">{subject.fields.cycle}</p>
-          </div>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {subjects.map((subject) => (
+            <div
+              key={subject.id}
+              className="border p-4 rounded-lg shadow-sm bg-white cursor-pointer"
+              onClick={() => setSelectedSubject(subject)}
+            >
+              <h2 className="font-semibold text-lg">{subject.fields.name}</h2>
+              <p className="text-sm text-gray-600">
+                Année : {subject.fields.year} | S{subject.fields.semester}
+              </p>
+              <p className="text-sm text-gray-600 italic">{subject.fields.cycle}</p>
+            </div>
+          ))}
+        </div>
+      </main>
 
       {(isCreating || selectedSubject) && (
-        <Dialog open={isCreating || !!selectedSubject} onOpenChange={() => {
-          setIsCreating(false);
-          setSelectedSubject(null);
-        }}>
+        <Dialog
+          open={isCreating || !!selectedSubject}
+          onOpenChange={() => {
+            setIsCreating(false);
+            setSelectedSubject(null);
+          }}
+        >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{isCreating ? "Ajouter une matière" : "Modifier la matière"}</DialogTitle>
+              <DialogTitle>
+                {isCreating ? "Ajouter une matière" : "Modifier la matière"}
+              </DialogTitle>
               <DialogDescription>
-                {isCreating ? "Remplis les infos de la nouvelle matière." : "Modifie les infos de cette matière."}
+                {isCreating
+                  ? "Remplis les infos de la nouvelle matière."
+                  : "Modifie les infos de cette matière."}
               </DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={handleSubmit(isCreating ? createSubject : updateSubject)} className="space-y-4">
+            <form
+              onSubmit={handleSubmit(isCreating ? createSubject : updateSubject)}
+              className="space-y-4"
+            >
               <Input {...register("name", { required: true })} placeholder="Nom de la matière" />
               <Input {...register("subject", { required: true })} placeholder="Code matière (ex: MATH101)" />
               <Input {...register("year", { required: true })} placeholder="Année" />
