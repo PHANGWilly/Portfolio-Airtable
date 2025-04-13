@@ -98,9 +98,7 @@ export default function StudentAdminPage() {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cet étudiant ?")) return;
 
     try {
-      const res = await fetch(`/api/students/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/students/${id}`, { method: "DELETE" });
 
       if (!res.ok) throw new Error("Erreur suppression");
 
@@ -119,12 +117,22 @@ export default function StudentAdminPage() {
         <h1 className="text-3xl font-bold mb-6">Gestion des étudiants</h1>
 
         <Button
+          className="mb-4"
           onClick={() => {
-            reset();
             setSelectedStudent(null);
             setIsCreating(true);
+
+            // Assure un formulaire vierge
+            setTimeout(() => {
+              reset({
+                firstname: "",
+                lastname: "",
+                email: "",
+                class: "",
+                projects: [],
+              });
+            }, 0);
           }}
-          className="mb-4"
         >
           Ajouter un étudiant
         </Button>
@@ -170,31 +178,48 @@ export default function StudentAdminPage() {
               onSubmit={handleSubmit(isCreating ? createStudent : updateStudent)}
               className="space-y-4"
             >
-              <Input {...register("firstname", { required: true })} placeholder="Prénom" />
-              <Input {...register("lastname", { required: true })} placeholder="Nom" />
-              <Input {...register("email", { required: true })} placeholder="Email" />
-              <Input {...register("class", { required: true })} placeholder="Classe" />
+              <div>
+                <label className="block text-sm font-medium mb-1">Prénom</label>
+                <Input {...register("firstname", { required: true })} placeholder="Prénom" />
+              </div>
 
-              <label className="block text-sm font-medium">Projets associés</label>
-              <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
-                {projects.map((project) => (
-                  <label key={project.id} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      value={project.id}
-                      checked={watch("projects")?.includes(project.id)}
-                      onChange={(e) => {
-                        const current = watch("projects") || [];
-                        if (e.target.checked) {
-                          setValue("projects", [...current, project.id]);
-                        } else {
-                          setValue("projects", current.filter((id: string) => id !== project.id));
-                        }
-                      }}
-                    />
-                    {project.fields.name}
-                  </label>
-                ))}
+              <div>
+                <label className="block text-sm font-medium mb-1">Nom</label>
+                <Input {...register("lastname", { required: true })} placeholder="Nom" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <Input {...register("email", { required: true })} placeholder="Email" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Classe</label>
+                <Input {...register("class", { required: true })} placeholder="Classe (ex: L3 Dev)" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Projets associés</label>
+                <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
+                  {projects.map((project) => (
+                    <label key={project.id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        value={project.id}
+                        checked={watch("projects")?.includes(project.id)}
+                        onChange={(e) => {
+                          const current = watch("projects") || [];
+                          if (e.target.checked) {
+                            setValue("projects", [...current, project.id]);
+                          } else {
+                            setValue("projects", current.filter((id: string) => id !== project.id));
+                          }
+                        }}
+                      />
+                      {project.fields.name}
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <DialogFooter className="pt-4">

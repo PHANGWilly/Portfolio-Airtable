@@ -119,9 +119,19 @@ export default function SubjectAdminPage() {
         <Button
           className="mb-4"
           onClick={() => {
-            reset();
             setSelectedSubject(null);
             setIsCreating(true);
+            setTimeout(() => {
+              reset({
+                name: "",
+                subject: "",
+                year: "",
+                cycle: "",
+                semester: "",
+                description: "",
+                projects: [],
+              });
+            }, 0);
           }}
         >
           Ajouter une matière
@@ -168,33 +178,58 @@ export default function SubjectAdminPage() {
               onSubmit={handleSubmit(isCreating ? createSubject : updateSubject)}
               className="space-y-4"
             >
-              <Input {...register("name", { required: true })} placeholder="Nom de la matière" />
-              <Input {...register("subject", { required: true })} placeholder="Code matière (ex: MATH101)" />
-              <Input {...register("year", { required: true })} placeholder="Année" />
-              <Input {...register("semester", { required: true })} placeholder="Semestre (ex: 1 ou 2)" />
-              <Input {...register("cycle", { required: true })} placeholder="Cycle (ex: L1, M1...)" />
-              <Textarea {...register("description")} placeholder="Description" />
+              <div>
+                <label className="block text-sm font-medium mb-1">Nom</label>
+                <Input {...register("name", { required: true })} placeholder="Nom de la matière" />
+              </div>
 
-              <label className="block text-sm font-medium">Projets associés</label>
-              <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
-                {projects.map((project) => (
-                  <label key={project.id} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      value={project.id}
-                      checked={watch("projects")?.includes(project.id)}
-                      onChange={(e) => {
-                        const current = watch("projects") || [];
-                        if (e.target.checked) {
-                          setValue("projects", [...current, project.id]);
-                        } else {
-                          setValue("projects", current.filter((id: string) => id !== project.id));
-                        }
-                      }}
-                    />
-                    {project.fields.name}
-                  </label>
-                ))}
+              <div>
+                <label className="block text-sm font-medium mb-1">Code matière</label>
+                <Input {...register("subject", { required: true })} placeholder="Code matière (ex: MATH101)" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Année</label>
+                <Input {...register("year", { required: true })} placeholder="Année (ex: 2023)" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Semestre</label>
+                <Input {...register("semester", { required: true })} placeholder="Semestre (ex: 1 ou 2)" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Cycle</label>
+                <Input {...register("cycle", { required: true })} placeholder="Cycle (ex: L1, M1...)" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <Textarea {...register("description")} placeholder="Description" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Projets associés</label>
+                <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
+                  {projects.map((project) => (
+                    <label key={project.id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        value={project.id}
+                        checked={watch("projects")?.includes(project.id)}
+                        onChange={(e) => {
+                          const current = watch("projects") || [];
+                          if (e.target.checked) {
+                            setValue("projects", [...current, project.id]);
+                          } else {
+                            setValue("projects", current.filter((id: string) => id !== project.id));
+                          }
+                        }}
+                      />
+                      {project.fields.name}
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <DialogFooter className="pt-4">

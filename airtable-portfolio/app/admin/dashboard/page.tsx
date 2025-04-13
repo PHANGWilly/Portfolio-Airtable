@@ -127,15 +127,26 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-bold mb-6">Gestion des projets</h1>
 
         <Button
-          className="mb-6"
-          onClick={() => {
-            reset();
-            setSelectedProject(null);
-            setIsCreating(true);
-          }}
-        >
-          Ajouter un projet
-        </Button>
+  className="mb-6"
+  onClick={() => {
+    setSelectedProject(null);
+    setIsCreating(true);
+
+    setTimeout(() => {
+      reset({
+        name: "",
+        description: "",
+        link: "",
+        students: [],
+        subjects: [],
+        visibility: true,
+      });
+    }, 0);
+  }}
+>
+  Ajouter un projet
+</Button>
+
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
@@ -168,48 +179,63 @@ export default function DashboardPage() {
             </DialogHeader>
 
             <form onSubmit={handleSubmit(isCreating ? createProject : updateProject)} className="space-y-4">
-              <Input {...register("name", { required: true })} placeholder="Nom du projet" />
-              <Textarea {...register("description")} placeholder="Description" />
-              <Input {...register("link")} placeholder="Lien (facultatif)" />
-
-              <label className="text-sm font-medium">Étudiants associés</label>
-              <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
-                {students.map((student) => (
-                  <label key={student.id} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      value={student.id}
-                      checked={watch("students")?.includes(student.id)}
-                      onChange={(e) => {
-                        const current = watch("students") || [];
-                        setValue("students", e.target.checked
-                          ? [...current, student.id]
-                          : current.filter((id: string) => id !== student.id));
-                      }}
-                    />
-                    {student.fields.firstname} {student.fields.lastname}
-                  </label>
-                ))}
+              <div>
+                <label className="text-sm font-medium">Nom du projet</label>
+                <Input {...register("name", { required: true })} placeholder="Nom du projet" />
               </div>
 
-              <label className="text-sm font-medium">Matières associées</label>
-              <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
-                {subjects.map((subject) => (
-                  <label key={subject.id} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      value={subject.id}
-                      checked={watch("subjects")?.includes(subject.id)}
-                      onChange={(e) => {
-                        const current = watch("subjects") || [];
-                        setValue("subjects", e.target.checked
-                          ? [...current, subject.id]
-                          : current.filter((id: string) => id !== subject.id));
-                      }}
-                    />
-                    {subject.fields.name} (S{subject.fields.semester} - {subject.fields.year})
-                  </label>
-                ))}
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <Textarea {...register("description")} placeholder="Description" />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Lien du projet</label>
+                <Input {...register("link")} placeholder="Lien (facultatif)" />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Étudiants associés</label>
+                <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
+                  {students.map((student) => (
+                    <label key={student.id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        value={student.id}
+                        checked={watch("students")?.includes(student.id)}
+                        onChange={(e) => {
+                          const current = watch("students") || [];
+                          setValue("students", e.target.checked
+                            ? [...current, student.id]
+                            : current.filter((id: string) => id !== student.id));
+                        }}
+                      />
+                      {student.fields.firstname} {student.fields.lastname}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Matières associées</label>
+                <div className="grid gap-2 max-h-40 overflow-y-auto border p-2 rounded">
+                  {subjects.map((subject) => (
+                    <label key={subject.id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        value={subject.id}
+                        checked={watch("subjects")?.includes(subject.id)}
+                        onChange={(e) => {
+                          const current = watch("subjects") || [];
+                          setValue("subjects", e.target.checked
+                            ? [...current, subject.id]
+                            : current.filter((id: string) => id !== subject.id));
+                        }}
+                      />
+                      {subject.fields.name} (S{subject.fields.semester} - {subject.fields.year})
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <label className="flex items-center gap-2 text-sm">
