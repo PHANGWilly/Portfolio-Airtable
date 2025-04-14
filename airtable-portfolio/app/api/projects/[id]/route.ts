@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateProjet } from "@/lib/project";
-import { deleteProjet } from "@/lib/project";
-import { createProjet } from "@/lib/project";
-
+import { updateProjet, deleteProjet, createProjet } from "@/lib/project";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -19,12 +16,8 @@ export async function PUT(req: NextRequest) {
       name: data.name,
       description: data.description,
       link: data.link,
-      students: Array.isArray(data.students)
-        ? data.students.filter((s: string) => s !== "")
-        : [],
-      subjects: Array.isArray(data.subjects)
-        ? data.subjects.filter((s: string) => s !== "")
-        : [],
+      students: Array.isArray(data.students) ? data.students.filter((s: string) => s !== "") : [],
+      subjects: Array.isArray(data.subjects) ? data.subjects.filter((s: string) => s !== "") : [],
       visibility: data.visibility === true,
     });
 
@@ -44,7 +37,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "ID manquant" }, { status: 400 });
     }
 
-    const deleted = await deleteProjet(id); 
+    const deleted = await deleteProjet(id);
     return NextResponse.json({ success: true, record: deleted });
   } catch (error) {
     console.error("Erreur DELETE /api/projects/[id]:", error);
@@ -60,22 +53,17 @@ export async function POST(req: NextRequest) {
       name: data.name,
       description: data.description || "",
       link: data.link || "",
-      students: Array.isArray(data.students)
-        ? data.students.filter((s: string) => s !== "")
-        : [],
-      subjects: Array.isArray(data.subjects)
-        ? data.subjects.filter((s: string) => s !== "")
-        : [],
+      students: Array.isArray(data.students) ? data.students.filter((s: string) => s !== "") : [],
+      subjects: Array.isArray(data.subjects) ? data.subjects.filter((s: string) => s !== "") : [],
       visibility: data.visibility === true,
     });
 
-
     return NextResponse.json({ success: true, record: created }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         error: "Erreur création",
-        details: error?.message || String(error),
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );

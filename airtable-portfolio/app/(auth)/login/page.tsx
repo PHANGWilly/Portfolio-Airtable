@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
 
@@ -26,7 +24,7 @@ export default function LoginPage() {
     localStorage.setItem("token", data.token);
 
     alert("Connexion réussie !");
-    router.push("/admin/dashboard");
+    window.location.href = "/admin/dashboard";
   };
 
   return (
