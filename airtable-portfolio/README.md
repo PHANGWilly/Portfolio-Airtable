@@ -19,3 +19,10 @@ identifiants pour se connecter en tant qu'admin:
 
 rachaafaf15@gmail.com
 Admin1234!
+
+## technos
+Next.js
+React
+Node js 
+typescript
+tailwind
